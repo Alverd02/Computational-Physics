@@ -9,7 +9,7 @@ C
 
         X1=2.0E30
         X2=2.0E8
-        X3=X1+X2
+        X3=X1*X2
         WRITE(*,*) ' Redondeo'
         WRITE(*,*) ' NUMEROS    x1=',x1,' x2=',x2
         WRITE(*,*) ' X3-X1=X2=',X3-X1

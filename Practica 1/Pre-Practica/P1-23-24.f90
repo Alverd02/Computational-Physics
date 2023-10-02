@@ -38,4 +38,15 @@ DO N=1,40
     WRITE(10,*) N,E_fermi
 END DO
 
+! Apartat 4
+
+OPEN(11,file = "P1-23-24(2).dat")
+DO N=1,40
+    E_fermi = 0
+    DO i =1,N
+        E_fermi = E_fermi + i**2*E1
+    END DO
+    WRITE(11,*) N,E_fermi**2/E_fermi
+END DO
+
 END PROGRAM P1

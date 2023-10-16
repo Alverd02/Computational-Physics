@@ -17,7 +17,7 @@ WRITE(*,*) "La funcio val: ", 3*k**2/5 + e + 10*k
 
 
 DO i=28,65
-    P_k = P_k + 3*i**2/5 + e + 10*i
+    P_k = P_k + 3*i**2/5. + e + 10*i
 END DO
 
 WRITE(*,*) "El valor de S^M_N val (sense subrutina): ",P_k
@@ -32,7 +32,7 @@ OPEN(11,file = "P1-23-24-res1.dat")
 DO i=8,311,3
     P_k = 0.
     DO j=8,i
-        P_k = P_k + 3*j**2/5 + e + 10*j
+        P_k = P_k + 3*j**2/5. + e + 10*j
     END DO
     WRITE(11,*) i,P_k
 END DO

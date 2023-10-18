@@ -2,6 +2,7 @@ set ylabel "x(t) [cm]"
 set xlabel "t [s]"
 set xzeroaxis
 set yzeroaxis
+set yrange[0:60]
 
 set term png
 set output "P2-23-24-fig1.png"

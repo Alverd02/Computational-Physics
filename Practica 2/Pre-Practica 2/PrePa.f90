@@ -50,14 +50,12 @@ CLOSE(11)
 ! Apartat 7
 
 OPEN(12,file="P2-23-24-res2.dat")
-xout = 0
+
 DO i =0,1200
 t=0.0025*i
 CALL interpol(t,xout)
 write(12,"(5F10.2)") t,xout
 END DO
-
-WRITE(*,*) size(times)
 
 END PROGRAM P1
 

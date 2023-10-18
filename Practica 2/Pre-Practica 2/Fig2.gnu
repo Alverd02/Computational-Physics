@@ -2,6 +2,7 @@ set ylabel "x(x_3) [cm]"
 set xlabel "x_3 [cm]"
 set xzeroaxis
 set yzeroaxis
+set yrange[0:60]
 
 set term png
 set output "P2-23-24-fig2.png"

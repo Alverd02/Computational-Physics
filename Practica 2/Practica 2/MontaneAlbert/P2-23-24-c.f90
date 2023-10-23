@@ -61,7 +61,9 @@ OPEN(12,file="P2-23-24-res2-c.dat")
 
 DO i =0,2000
 t=0.003*i
+
 xout =  xinterpol(t)
+
 xout_0 = xinterpol0(t)
 
 write(12,"(5F10.2)") t,xout_0,xout

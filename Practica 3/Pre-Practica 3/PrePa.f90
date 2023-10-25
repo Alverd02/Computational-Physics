@@ -3,9 +3,11 @@ PROGRAM P3
 IMPLICIT NONE
 
 COMMON/CONSTANTS/pi 
-DOUBLE PRECISION :: pi,valorarrel_1,fun,A,B,preci,valorarrel_2,valorarrel_3,xini,valorarrel
+DOUBLE PRECISION :: pi,valorarrel_1,A,B,preci,valorarrel_2,valorarrel_3,xini,valorarrel,E,valordf,valorf
 DOUBLE PRECISION, DIMENSION(1:9) :: E_0
-INTEGER :: nitera_1,nitera_2,nitera_3,nitera,i
+DOUBLE PRECISION, DIMENSION(1:25) :: E_25,funci_25,dfunci_25,dfunci_25_aprox
+DOUBLE PRECISION, DIMENSION(1:230) :: E_230,funci_230,dfunci_230,dfunci_230_aprox
+INTEGER :: nitera_1,nitera_2,nitera_3,nitera,i,ndates
 EXTERNAL fun
 pi = 3.1415926535898
 
@@ -40,6 +42,47 @@ CALL newtonraphson(fun,xini,preci,nitera,valorarrel)
 
 END DO
 CLOSE(12)
+
+! Apartat 4
+
+DO i=0,25
+E = 0.251327*i
+E_25(i) = E
+CALL fun(E,valorf,valordf)
+funci_25(i) = valorf
+dfunci_25(i) = valordf
+END DO
+
+DO i=0,230
+E = 0.027318*i
+E_230(i) = E
+CALL fun(E,valorf,valordf)
+funci_230(i) = valorf
+dfunci_230(i) = valordf
+END DO
+
+
+OPEN(13,file =" P3-23-24-res3-n25.dat")
+ndates = 25
+CALL derivataula(ndates,E_25,funci_25,dfunci_25_aprox)
+
+DO i=1,ndates
+
+WRITE(13,"(4e20.12))") E_25(i),funci_25(i),dfunci_25_aprox(i),dfunci_25(i)
+END DO
+
+CLOSE(13)
+
+OPEN(14,file =" P3-23-24-res3-n230.dat")
+ndates = 230
+CALL derivataula(ndates,E_230,funci_230,dfunci_230_aprox)
+
+DO i=1,ndates
+
+WRITE(14,"(4e20.12))") E_230(i),funci_230(i),dfunci_230_aprox(i),dfunci_230(i)
+END DO
+CLOSE(14)
+
 END PROGRAM P3
 ! Apartat 1
 
@@ -124,3 +167,24 @@ valordf_2 = (-57./160*pi + (57./80 + 17./20*pi)*x - (17./10 + pi/2.)*x**2 + x**3
 valordf = valordf_1 + valordf_2
 RETURN
 END
+
+! Apartat 3
+
+SUBROUTINE derivataula(ndates,valorsx,funci,dfunci)
+IMPLICIT NONE
+INTEGER :: ndates,i
+DOUBLE PRECISION :: h
+DOUBLE PRECISION, DIMENSION(1:ndates) :: valorsx,funci,dfunci
+
+h = valorsx(2)-valorsx(1)
+
+dfunci(1) = (funci(2)-funci(1))/h
+
+dfunci(ndates) = (funci(ndates)-funci(ndates-1))/h
+
+DO i=2,ndates-1
+dfunci(i) = (funci(i+1)-funci(i-1))/(2*h)
+
+END DO
+
+END 

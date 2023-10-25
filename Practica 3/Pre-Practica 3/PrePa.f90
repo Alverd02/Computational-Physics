@@ -62,7 +62,7 @@ dfunci_230(i) = valordf
 END DO
 
 
-OPEN(13,file =" P3-23-24-res3-n25.dat")
+OPEN(13,file ="P3-23-24-res3-n25.dat")
 ndates = 25
 CALL derivataula(ndates,E_25,funci_25,dfunci_25_aprox)
 
@@ -73,7 +73,7 @@ END DO
 
 CLOSE(13)
 
-OPEN(14,file =" P3-23-24-res3-n230.dat")
+OPEN(14,file ="P3-23-24-res3-n230.dat")
 ndates = 230
 CALL derivataula(ndates,E_230,funci_230,dfunci_230_aprox)
 

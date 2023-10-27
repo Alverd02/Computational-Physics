@@ -79,7 +79,7 @@ CALL derivataula(ndates,E_230,funci_230,dfunci_230_aprox)
 
 DO i=1,ndates
 
-WRITE(14,"(4e20.12))") E_230(i),funci_230(i),dfunci_230_aprox(i),dfunci_230(i)
+WRITE(14,"(4e20.12)") E_230(i),funci_230(i),dfunci_230_aprox(i),dfunci_230(i)
 END DO
 CLOSE(14)
 
@@ -188,3 +188,4 @@ dfunci(i) = (funci(i+1)-funci(i-1))/(2*h)
 END DO
 
 END 
+

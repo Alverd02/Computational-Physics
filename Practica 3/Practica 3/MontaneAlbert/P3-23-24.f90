@@ -3,7 +3,7 @@ PROGRAM P3
 IMPLICIT NONE
 
 COMMON/CONSTANTS/pi 
-DOUBLE PRECISION :: a,eps,E_i,D,pi,x,y,A_2,B,preci,valorarrel,t,xini
+DOUBLE PRECISION :: a,eps,E_i,D,pi,x,y,A_2,B,preci,valorarrel,t,xini,valordf,valorf
 DOUBLE PRECISION, DIMENSION(1:100) :: E,posis_halley,dfunci_halley
 INTEGER :: i,ndates,nitera
 EXTERNAL fun_1
@@ -34,7 +34,7 @@ OPEN(11,file ="P3-23-24-res.dat")
 
 ndates = 100
 CALL derivataula(ndates,E,posis_halley,dfunci_halley)
-WRITE(11,*) "# Resultados apartado 1:"
+WRITE(11,"(A23)") "# Resultados apartado 1"
 DO i=1,ndates
 WRITE(11,"(3e20.12))") E(i),posis_halley(i),dfunci_halley(i)
 END DO
@@ -49,16 +49,17 @@ preci = 1.d-10
 CALL biseccio(fun_1,A_2,B,preci,nitera,valorarrel)
 CALL posis(valorarrel,a,eps,D,x,y)
 
-WRITE(11,*) "# Resultados apartado 2:"
+WRITE(11,"(A23)") "# Resultados apartado 2"
 WRITE(11,"(3e20.12))") valorarrel,D
 WRITE(11,"(/)")
 
-WRITE(11,*) "# Resultados apartado 3:"
+WRITE(11,"(A23)") "# Resultados apartado 3"
 
 DO i=0,79
 t = 0.94125*i
-xini = pi/4.
+xini = pi/4.d0
 preci = 1.d-12
+
 CALL newtonraphson(fun_2,xini,preci,nitera,valorarrel)
 CALL posis(valorarrel,a,eps,D,x,y)
 WRITE(11,"(4e20.12))") t,valorarrel,x,y
@@ -70,13 +71,13 @@ END PROGRAM P3
 
 SUBROUTINE newtonraphson(fun,xini,preci,nitera,valorarrel)
 IMPLICIT NONE
-DOUBLE PRECISION :: xini,preci,valorarrel,x1,valordf,valorf,t,eps
+DOUBLE PRECISION :: xini,preci,valorarrel,x1,valordf,valorf,eps,t
 INTEGER :: nitera,i
 
 
 DO i=1,999999
 
-CALL fun(xini,valorf,eps,valordf,t)
+CALL fun(xini,valorf,eps,valordf,t)   
 x1 = xini - valorf/valordf
 IF (ABS(valorf/valordf).LE.preci) THEN
 valorarrel = x1
@@ -146,10 +147,10 @@ END
 
 SUBROUTINE fun_2(E,valorf,eps,valordf,t)
 IMPLICIT NONE
-DOUBLE PRECISION :: E,valorf,eps,valordf,t,pi,T_H
+DOUBLE PRECISION :: E,valorf,eps,valordf,pi,T_H,t
 COMMON/CONSTANTS/pi
 T_H = 75.3
-valorf = (2*pi)/(T_H)*t-eps*sin(E)
+valorf = (2*pi*t)/(T_H)-eps*sin(E)
 valordf = -eps*cos(E)
 
 RETURN

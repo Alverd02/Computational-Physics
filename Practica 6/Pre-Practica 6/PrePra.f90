@@ -2,10 +2,9 @@ PROGRAM P6
 
 IMPLICIT NONE
 
-INTEGER :: ISEED,i,ndades,k,j
-DOUBLE PRECISION :: pi,e,resultat1,resultat2,error1,error2,a,b,cotasup,sigma,mu,resultat3,resultat4,resultat5,error5,error4,error3
-DOUBLE PRECISION, DIMENSION(1100000) :: numeros,yres,t2
-DOUBLE PRECISION, DIMENSION(120000) :: t
+INTEGER :: ISEED,i,ndades,j,K,n
+DOUBLE PRECISION :: pi,e,resultat1,resultat2,error1,error2,a,b,cotasup,sigma,mu,I1,I2
+DOUBLE PRECISION, DIMENSION(1100000) :: numeros,yres
 COMMON/CONSTANTS/pi,e
 EXTERNAL func1
 EXTERNAL func2
@@ -22,22 +21,18 @@ CALL SRAND(ISEED)
 pi = 3.1415926535898 
 e = 2.718281828459 
 
+I1 = pi**3/2.d0
+I2 = 6*pi**3 - (905/144)*pi
+
 OPEN(11,file="P6-23-24-res.dat")
 
-WRITE(11,*) "# a)"
+WRITE(11,*) "# i,res1,sigma1,err1,res2,sigma2,err2"
 
 DO i=2000,120000,2000
+CALL montecarlocru(-pi,pi,i,func1,resultat1,error1)
+CALL montecarlocru(-2*pi,2*pi,i,func2,resultat2,error2)
 
-DO k = 1,i
-
-t(k) = RAND()
-
-END DO
-
-CALL montecarlo(-pi,pi,i,func1,resultat1,error1,t)
-CALL montecarlo(-2*pi,2*pi,i,func2,resultat2,error2,t)
-
-WRITE(11,*) i,resultat1,error1,resultat2,error2
+WRITE(11,*) i,resultat1,error1,abs(resultat1-I1),resultat2,error2,abs(resultat2-I2)
 
 END DO
 
@@ -56,21 +51,7 @@ CALL boxmuller(ndades,sigma,mu,yres)
 
 WRITE(11,*) "# d)"
 
-DO i = 5000,1100000,5000
 
-DO k = 1,i
-
-t2(k) = RAND()
-
-END DO
-
-CALL montecarlo(0,pi,i,func3,resultat3,error3,t2)
-CALL montecarlo(0,pi,i,func4,resultat4,error4,t2)
-!CALL montecarlo(-9999999,9999999,i,func5,resultat5,error5,yres)
-  
-WRITE(11,*) i,resultat3,error3,resultat4,error4,resultat5,error5
-
-END DO
 WRITE(11,"(/)")
 CLOSE(11)
 
@@ -80,7 +61,7 @@ CLOSE(11)
 
 END PROGRAM P6
 
-subroutine montecarlo(a,b,n,func,resultat,error,t)
+subroutine montecarlocru(a,b,n,func,resultat,error)
 
 IMPLICIT NONE
 
@@ -93,7 +74,7 @@ x2 = 0.d0
 
 DO i=1,n 
 
-h = (b-a)*func((b-a)*t(i)+a)
+h = (b-a)*func((b-a)*rand()+a)
 resultat = resultat + h
 x2 = x2 + h**2
 

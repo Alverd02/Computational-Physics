@@ -83,7 +83,7 @@ END DO
 
 WRITE(11,"(/)")
 WRITE(11,*) "# i,res6,sigma6"
-DO i=1500,210000,1500
+DO i=5000,1100000,5000
 CALL montecarlomulti(yres,i,func6,resultat6,error6)
 WRITE(11,*) i,resultat6,error6
 END DO

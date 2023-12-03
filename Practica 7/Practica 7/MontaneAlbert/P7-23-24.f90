@@ -2,7 +2,7 @@ PROGRAM P7
 
 IMPLICIT NONE
 
-DOUBLE PRECISION :: pi,m,l,g,w_N,T_N,t_f,t_0,y_0,p_0,E_t_1,E_t_2,Ecine,Epoten
+DOUBLE PRECISION :: pi,m,l,g,w_N,T_N,t_f,t_0,y_0,p_0,E_t_1,E_t_2,Ecine,Epoten,edo
 INTEGER :: n,i
 DOUBLE PRECISION,DIMENSION(1500) :: theta_a_1,theta_a_2,p_a_1,p_a_2
 DOUBLE PRECISION,DIMENSION(1500) :: theta_b_1,theta_b_2,p_b_1,p_b_2
@@ -27,7 +27,7 @@ y_0 = 0.025
 p_0 = 0
 
 CALL euler(n,p_0,y_0,t_0,t_f,theta_a_1,p_a_1,edo)
-CALL euler_segon(n,p_0,y_0,t_0,t_f,theta_a_2,p_a_2,edo)
+CALL segonordre(n, t_0, t_f, y_0, p_0, theta_a_2, p_a_2, edo)
 
 WRITE(11,*) "# 0)"
 DO i = 1,n
@@ -41,7 +41,7 @@ y_0 = pi - 0.15
 p_0 = 0
 
 CALL euler(n,p_0,y_0,t_0,t_f,theta_b_1,p_b_1,edo)
-CALL euler_segon(n,p_0,y_0,t_0,t_f,theta_b_2,p_b_2,edo)
+CALL segonordre(n, t_0, t_f, y_0, p_0, theta_b_2, p_b_2, edo)
 
 WRITE(11,*) "# 1)"
 DO i = 1,n
@@ -55,8 +55,7 @@ y_0 = pi - 0.025
 p_0 = 0.12
 
 CALL euler(n,p_0,y_0,t_0,t_f,theta_c_1,p_c_1,edo)
-CALL euler_segon(n,p_0,y_0,t_0,t_f,theta_c_2,p_c_2,edo)
-
+CALL segonordre(n, t_0, t_f, y_0, p_0, theta_c_2, p_c_2, edo)
 WRITE(11,*) "# 2)"
 
 DO i = 1,n
@@ -103,34 +102,42 @@ y = (-g/l)*dsin(x)
 return
 END
 
-SUBROUTINE euler_segon(n,p_0,y_0,x_0,x_f,y,p,funci)
+SUBROUTINE segonordre(T, x0, xf, y0, f0, y, dy, f)
 
 IMPLICIT NONE
 
-INTEGER :: n,i 
-DOUBLE PRECISION :: p_0,y_0,x_0,x_f,funci,h,k_1,k_2
-DOUBLE PRECISION,DIMENSION(n) :: y,p
+DOUBLE PRECISION :: x0, y0, f0, h, xf, f, dk1, k2, dk2, k1
+DOUBLE PRECISION :: l, g
+INTEGER :: T, i 
+DOUBLE PRECISION, DIMENSION(T+1) :: y, dy
 
 
-h = (x_f-x_0)/n
-y(1) = y_0
-p(1) = p_0
-DO i =2,n
+y(1) = y0 
+dy(1) = f0
 
+h = abs(xf-x0)/dble(T)
 
-y(i) = y(i-1) + (h/3.d0)*p(i-1) + (2*h/3.d0)*funci(y(i-1) + (3*h/4.d0)*p(i-1))
-p(i) = p(i-1) + (h/3.d0)*funci(y(i-1)) + (2*h/3.d0)*funci(y(i-1) + (3*h/4.d0)*p(i-1))
-END DO
-END
+DO i=2, T+1
+
+	k1 = dy(i-1)
+    dk1 = f(y(i-1))
+    k2 = dy(i-1) + 3.d0*h*dk1/4.d0
+    dk2 = f(y(i-1)+ 3.d0*h*k1/4.d0)
+	y(i) = y(i-1) + h*k1/3.d0 + 2.d0*h*k2/3.d0 
+    dy(i) =  dy(i-1)  + h*dk1/3.d0  + 2.d0*h*dk2/3.d0
+ENDDO
+
+RETURN
+END SUBROUTINE segonordre
 
 DOUBLE PRECISION FUNCTION Ecine(x)
 
 IMPLICIT NONE
 
-DOUBLE PRECISION :: y,x,g,l,m
+DOUBLE PRECISION :: Ecine,x,g,l,m
 COMMON/CONSTANTS/g,l,m
 
-y = (1/2.d0)*m*(x**2)*(l**2)
+Ecine = (1/2.d0)*m*(x**2)*(l**2)
 return
 END
 
@@ -138,9 +145,9 @@ DOUBLE PRECISION FUNCTION Epoten(x)
 
 IMPLICIT NONE
 
-DOUBLE PRECISION :: y,x,g,l,m
+DOUBLE PRECISION :: Epoten,x,g,l,m
 COMMON/CONSTANTS/g,l,m
 
-y = -m*g*l*dcos(x)
+Epoten = -m*g*l*dcos(x)
 return
 END

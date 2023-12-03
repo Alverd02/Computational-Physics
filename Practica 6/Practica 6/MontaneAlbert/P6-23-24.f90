@@ -3,7 +3,7 @@ PROGRAM P6
 IMPLICIT NONE
 
 INTEGER :: ISEED,i,ndades
-DOUBLE PRECISION :: a,b,resultat_u,resultat_d,error_u,error_d,xlow,xhigh,cotasup,pi,error_2,I2,L,I3,error_3
+DOUBLE PRECISION :: a,b,resultat_u,resultat_d,error_u,error_d,xlow,xhigh,cotasup,pi,error_2,I2,L,I3,error_3,u,d,p,g,f
 DOUBLE PRECISION,DIMENSION(1000000) :: posis
 COMMON/CONSTANTS/pi,L
 EXTERNAL u
@@ -15,7 +15,7 @@ EXTERNAL f
 ISEED=20470586
 CALL SRAND(ISEED)
 
-pi = 3.1415926535898 
+pi = 4.d0*atan(1.d0)
 
 OPEN(11,file="P6-23-24-res.dat")
 
@@ -63,12 +63,12 @@ WRITE(11,*) "#2 N,I3,error_3"
 
 xhigh = 1.d0
 xlow = -1.d0
-cotasup = 1.d0
+cotasup = 1.5
 
 DO i=10000,300000,10000
 
 CALL intaccepta(i,I3,error_3,xlow,xhigh,cotasup,f)
-
+WRITE(11,*) i,2*I3,2*error_3
 END DO
 
 CLOSE(11)
@@ -77,18 +77,22 @@ END PROGRAM P6
 
 DOUBLE PRECISION FUNCTION u(x)
 
-DOUBLE PRECISION :: x,y
+IMPLICIT NONE
 
-y = (5.109*x**(0.8002)*(1-x)**3)/x
+DOUBLE PRECISION :: x,u
+
+u = (5.109*x**(0.8002)*(1-x)**3)/x
 
 RETURN
 END
 
 DOUBLE PRECISION FUNCTION d(x)
 
-DOUBLE PRECISION :: x,y
+IMPLICIT NONE
 
-y = (3.058*x**(0.803)*(1-x)**4)/x
+DOUBLE PRECISION :: x,d
+
+d = (3.058*x**(0.803)*(1-x)**4)/x
 
 RETURN
 END
@@ -144,11 +148,11 @@ RETURN
 END
 
 DOUBLE PRECISION FUNCTION p(x)
+IMPLICIT NONE
+DOUBLE PRECISION :: x,p,pi,l
+COMMON/CONSTANTS/pi,L
 
-DOUBLE PRECISION :: x,y
-COMMON/CONSTNATS/pi,L
-
-y = (1.d0/L)*(dsin((pi*(x-L))/(2*L)))
+P = (1.d0/L)*(dsin((pi*(x-L))/(2*L)))**2
 
 RETURN
 END
@@ -179,11 +183,13 @@ RETURN
 END
 
 DOUBLE PRECISION FUNCTION g(x)
+ 
+IMPLICIT NONE 
 
-DOUBLE PRECISION :: x,y
-COMMON/CONSTNATS/pi,L
+DOUBLE PRECISION :: x,g,pi,l
+COMMON/CONSTANTS/pi,L
 
-y = (dsin((8*pi*(x-L))/(2*L)))**2
+g = (dsin((8*pi*(x-L))/(2*L)))**2
 
 RETURN
 END
@@ -218,9 +224,11 @@ END
 
 DOUBLE PRECISION FUNCTION f(x)
 
-DOUBLE PRECISION :: x,y
+IMPLICIT NONE
 
-y = dsqrt(1-x**2)
+DOUBLE PRECISION :: x,f
+
+f = dsqrt(1-x**2)
 
 RETURN
 END

@@ -208,7 +208,7 @@ end
 
 
 
-subroutine normalitza(E1, N)
+subroutine normalitzar(E1, N)
     implicit none
     double precision :: phi2(N), llista_n(N),  Int, a, b, E1,phi(n)
     double precision :: x, dx, phi_F

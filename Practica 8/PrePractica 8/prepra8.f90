@@ -1,67 +1,69 @@
+
 program prepra8
     implicit none
     double precision :: E, V, pi, E1, E2, err, E3, Int
+    double precision, allocatable :: phi_list(:)
     integer :: i, N
     common/energies/E,V
-    external derivades
+
     open(15,file = 'resultatsprepra8.dat')
 
     pi = 4.d0 * atan(1.d0)
     V = -2.4
 
     N = 400
+    allocate(phi_list(N))
     err = 10.d-5
     do i =  1,4
         E1 = (i*pi)**2/2.d0 + V +0.2d0
         E2 = (i*pi)**2/2.d0 + V +0.3d0
         call tir(E1, E2, N, err, E3)
-        call normalitza(E3, N)
-    end do
-
-    N = 20
-    do i =  1,4
-        E1 = (i*pi)**2/2.d0 + V +0.2d0
-        E2 = (i*pi)**2/2.d0 + V +0.3d0
-        call tir(E1, E2, N, err, E3)
-        call normalitza(E3, N)
+        call normalitza(E3, N, Int, phi_list)
     end do
 
     close(15)
 end program prepra8
 
 
-
-subroutine RungeKutta4(t0, dt, nequ, yyin, yyout,derivades)
+!Amb notació dels apunts per a RK4: t0 = x0, dt = h, yyin = y0, yout = y(x0+h)
+subroutine RungeKutta4(t0, dt, nequ, yyin, yyout)
     implicit none
     double precision :: t0, dt, t
     double precision, dimension(nequ) :: yyin, yyout, y, k1, k2, k3, k4
     integer :: nequ, i
 
+    !k1:
+    call derivades(nequ, t0, yyin, k1) !k1 = f(x0,y0)
 
-    call derivades(nequ, t0, yyin, k1) !
 
-    y = yyin + 0.5d0 * k1 * dt 
-
-    t = t0 + 0.5d0*dt 
+    !k2 = f(x0 + h/2, y0 + h/2*k2)
+    do i = 1, nequ 
+        y(i) = yyin(i) + 0.5d0 * k1(i) * dt !Actualitzem el valor de les y
+    end do
+    t = t0 + 0.5d0*dt !Actualitzem el valor de les x
     call derivades(nequ, t0, y, k2)
 
 
-   
-        y = yyin + 0.5d0 * k2 * dt 
-    t = t0 + 0.5d0*dt 
+    !k3 = f(x0 + h/2, y0 + h/2*k2)
+    do i = 1, nequ 
+        y(i) = yyin(i) + 0.5d0 * k2(i) * dt !Actualitzem el valor de les y
+    end do
+    t = t0 + 0.5d0*dt !Actualitzem el valor de les x
     call derivades(nequ, t0, y, k3)
 
 
-  
-
-        y = yyin + k3 * dt 
-    t = t0 + dt 
+    !k4 = f(x0 + h, y0 + h*k3)
+    do i = 1, nequ 
+        y(i) = yyin(i) + k3(i) * dt !Actualitzem el valor de les y
+    end do
+    t = t0 + dt !Actualitzem el valor de les x
     call derivades(nequ, t0, y, k4)
 
 
     !y(y0+h) = y0 + h/6*(k1 + 2*k2 + 2*k3 + k4)
-        yyout = yyin + dt/6.d0*(k1+2.d0*k2+2.d0*k3+k4)
-
+    do i = 1, nequ
+        yyout(i) = yyin(i) + dt/6.d0*(k1(i)+2.d0*k2(i)+2.d0*k3(i)+k4(i))
+    end do
 
 end subroutine
 
@@ -90,27 +92,35 @@ end subroutine
 subroutine integrar(a, b, N, E0, Integral, phi_list, phi_f)
     implicit none
     double precision :: a, b, E0,  dx, x, Integral, E, V, phi_f
-    double precision, dimension (2) :: funcin, phiRK
+    double precision, dimension (2) :: phi, phiRK
     double precision, dimension (N) :: phi2_list, phi_list
     integer :: N, Nequ, i, k
+
     common/energies/E,V
-    external derivades
 
+    !Valors inicials
+    phi(1) = 0.d0
+    phi(2) = 0.15d0
 
-    funcin = [0.0d0,0.15d0]
     Nequ = 2
     E = E0
     dx = (b-a)/dble(N) !h
 
     do i = 1,N
         x = a + dx*i
-        phi_list(i) = funcin(1)
-        call RungeKutta4(x, dx, Nequ, funcin, phiRK,derivades) !Següent pas
-        funcin = phiRK
+        phi2_list(i) = phi(1)**2
+        phi_list(i) = phi(1)
+        call RungeKutta4(x, dx, Nequ, phi, phiRK) !Següent pas
+        do k = 1, Nequ
+            phi(k) = phiRK(k)
+        end do
     end do
 
     phi_f = phiRK(1)
-
+    
+    !Integrem
+    call simpson_list(a, b, N, phi2_list, Integral)
+    !call trapezoids(a, b, N, phi2_list, Integral)
 
 end subroutine
 
@@ -154,42 +164,25 @@ end subroutine
 !Subroutina que, a partir d'un interval (x1,x2), una llista i un enter N de forma
 !que: iteracions = N , et retrona una aproximació numèrica del valor de la 
 !intergral mitjançant el mètode de simpson amb 3 punts.
-SUBROUTINE  simpson_list(x1,x2,k,func,resultat)
-
-IMPLICIT NONE
-
-DOUBLE PRECISION :: x1,x2,resultat,h,valor,x,valor0,valorN
-double precision,dimension(k) :: func
-INTEGER :: intervals,k,i
-
-intervals = k
-h = (x2-x1)/intervals
-
-VALOR0 = func(1)
-VALORn = func(k)
-
-resultat = valor0 + valorN
-
-DO i=1,intervals-1
-x = x1
-IF (MOD(i,3).eq.0) THEN
-
-valor = func(i+1)
-resultat=resultat+2*valor
-
-ELSE
-
-valor =  func(i+1)
-resultat=resultat+3*valor
-
-END IF
-
-END DO
-
-resultat = (3*h*resultat)/8.
-
-RETURN
-END 
+subroutine simpson_list(x1, x2, N, y_list, integral)
+	implicit none
+	double precision :: x1, x2, integral, x_i, x_m, x_f, delta_x, funci, h
+    double precision, dimension(N) :: y_list
+	integer :: k, i, intervals, N
+	intervals = N
+	h = (x2-x1)/intervals
+	integral = 0.d0
+    !El mètode diferencia tres intervals:
+	do i = 0, intervals-1
+        if((i .eq. 0) .or. (i .eq. intervals)) then
+            integral = integral + y_list(i+1)* h/3.d0
+        else if (mod(i,2) .eq. 0) then
+            integral = integral + 2.d0*y_list(i+1)* h/3.d0 
+        else if (mod(i,2) .eq. 1) then
+            integral = integral + 4.d0*y_list(i+1)* h/3.d0
+        end if
+     end do
+end subroutine
 
 subroutine trapezoids(x1,x2,N,y,integral)
     implicit none
@@ -208,32 +201,24 @@ end
 
 
 
-subroutine normalitza(E1, N)
+subroutine normalitza(E1, N, Int, llista_n)
     implicit none
-    double precision :: phi2(N), llista_n(N),  Int, a, b, E1,phi(n)
-    double precision :: x, dx, phi_F
+    double precision :: llista(N), llista_n(N),  Int, a, b, E1
+    double precision :: x, dx, phi
     integer :: N, i
 
     a = 0.d0
     b = 1.d0
-
-CALL integrar(a, b, N, E1, Int, phi, phi_f)
-
-    dx = (b-a)/(1D0*N)
-    do i = 1,N
-        phi2(i) = phi(I)**2
-    end do
     
-    !Integrem
-    call simpson_list(a, b, N, phi2, Int)
-    !call trapezoids(a, b, N, phi2_list, Integral)
+    dx = (b-a)/(1D0*N)
 
+    call integrar(a, b, N, E1, Int, llista, phi)
     write(15,*) "#E =", E1, "N =", N
     do i = 1,N
         x = a + dx*i
-        llista_n(i) = PHI(i)/sqrt(Int)
-        write(15,*) x,phi(i),llista_n(i)
+        llista_n(i) = llista(i)/sqrt(Int)
+        write(15,*) x,llista(i),llista_n(i)
     end do
-
-write(15,"(/)")
+    write(15,*) ""
+    write(15,*) ""
 end subroutine

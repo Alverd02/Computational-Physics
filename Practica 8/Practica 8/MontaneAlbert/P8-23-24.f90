@@ -259,7 +259,6 @@ DOUBLE PRECISION,DIMENSION(N) :: phi2, PHI_n,phi
 DOUBLE PRECISION :: x, dx, phi_F,resultat, a, b
 INTEGER :: N, i
 
-dx = (b-a)/n
 DO i = 1,N
 phi2(i) = phi(I)**2
 END DO

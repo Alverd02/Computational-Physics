@@ -1,7 +1,7 @@
 set term png
 set output "P8-23-24-fig3.png"
  
-
+set xrange [-7:1]
 
 set key bmargin center horizontal box
 

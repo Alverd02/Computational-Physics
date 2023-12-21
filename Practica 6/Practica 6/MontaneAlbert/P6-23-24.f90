@@ -59,15 +59,20 @@ WRITE(11,*) i,I2,error_2
 
 END DO
 
+WRITE(11,"(/)")
+
 WRITE(11,*) "#2 N,I3,error_3"
 
 xhigh = 1.d0
 xlow = -1.d0
 cotasup = 1.5
 
+
+
 DO i=10000,300000,10000
 
 CALL intaccepta(i,I3,error_3,xlow,xhigh,cotasup,f)
+
 WRITE(11,*) i,2*I3,2*error_3
 END DO
 
@@ -199,26 +204,26 @@ SUBROUTINE intaccepta(ndades,resultat,error,xlow,xhigh,cotasup,funcio)
 IMPLICIT NONE
 
 DOUBLE PRECISION :: xlow,xhigh,cotasup,funcio,p,valor_mitja,variancia,desv_est,resultat,error
-DOUBLE PRECISION, dimension(ndades) :: numeros
-INTEGER :: ndades,n,i,n_dentro
+DOUBLE PRECISION:: numero
+INTEGER :: ndades,i,n_dentro
 
 n_dentro = 0
 
-DO i=1,n
+DO i=1,ndades
 
 
-numeros(n) = (xhigh-xlow)*RAND() + xlow
+numero = (xhigh-xlow)*RAND() + xlow
 p = cotasup*RAND()
 
-IF (funcio(numeros(n)).ge.p) then
+IF (funcio(numero).ge.p) then
 
 n_dentro = n_dentro + 1
 
 END IF
 END DO
 
-resultat = (cotasup*(xhigh-xlow)*n_dentro)/n
-error = ((cotasup*(xhigh-xlow))/dsqrt(dble(n)))*dsqrt((n_dentro/dble(n))*(1-n_dentro/n))
+resultat = (cotasup*(xhigh-xlow)*n_dentro)/ndades
+error = ((cotasup*(xhigh-xlow))/dsqrt(dble(ndades)))*dsqrt((n_dentro/dble(ndades))*(1-n_dentro/ndades))
 RETURN
 END
 

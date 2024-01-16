@@ -15,7 +15,7 @@ program prepra8
         E1 = (i*pi)**2/2.d0 + V +0.2d0
         E2 = (i*pi)**2/2.d0 + V +0.3d0
         call tir(E1, E2, N, err, E3)
-        call normalitza(E3, N)
+        call normalitzar(E3, N)
     end do
 
     N = 20
@@ -23,7 +23,7 @@ program prepra8
         E1 = (i*pi)**2/2.d0 + V +0.2d0
         E2 = (i*pi)**2/2.d0 + V +0.3d0
         call tir(E1, E2, N, err, E3)
-        call normalitza(E3, N)
+        call normalitzar(E3, N)
     end do
 
     close(15)

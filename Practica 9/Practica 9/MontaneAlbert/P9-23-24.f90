@@ -27,7 +27,7 @@ Ny = Ly/h+1
 allocate(T(Nx,Ny))
 
 
-epsilon = 0.01
+epsilon = 1.d-5
 
 Tint = [15.0d0,220.0d0,1280.0d0]
 
@@ -116,12 +116,13 @@ SUBROUTINE RESOLUCIO(h,Nx,Ny,T,icontrol,epsilon,RHO)
 
 IMPLICIT NONE
 
-INTEGER :: i,j,Nx,Ny,h,k,icontrol
-DOUBLE PRECISION :: T(Nx,Ny),RHO,epsilon,error,TNEW(Nx,Ny),TOLD(Nx,Ny),w,delta
+INTEGER :: i,j,Nx,Ny,k,icontrol
+DOUBLE PRECISION :: T(Nx,Ny),RHO,epsilon,error,TNEW(Nx,Ny),TOLD(Nx,Ny),w,delta,h
 TOLD = T
 TNEW = TOLD
 
-DO k = 1,999999
+DO k = 1,100000
+
 
 error = 0.0d0
 

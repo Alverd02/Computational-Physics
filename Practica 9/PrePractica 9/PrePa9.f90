@@ -103,8 +103,8 @@ SUBROUTINE RESOLUCIO(h,Nx,Ny,T,icontrol,epsilon)
 
 IMPLICIT NONE
 
-INTEGER :: i,j,Nx,Ny,h,k,icontrol
-DOUBLE PRECISION :: T(Nx,Ny),RHO,epsilon,error,TNEW(Nx,Ny),TOLD(Nx,Ny),w,delta
+INTEGER :: i,j,Nx,Ny,k,icontrol
+DOUBLE PRECISION :: T(Nx,Ny),RHO,epsilon,error,TNEW(Nx,Ny),TOLD(Nx,Ny),w,delta,h
 TOLD = T
 TNEW = TOLD
 

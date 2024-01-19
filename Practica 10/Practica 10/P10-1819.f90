@@ -3,7 +3,7 @@ PROGRAM P10
 IMPLICIT NONE
 
 DOUBLE PRECISION :: T_amb,T_Lt,T_0t,L,alpha,beta,tf,dx,epsilon,dt
-DOUBLE PRECISION, allocatable :: theta1(:),theta2(:),theta3(:),theta4(:),theta5(:),theta6(:),theta7(:)
+DOUBLE PRECISION, allocatable :: theta1(:),theta2(:),theta3(:),theta4(:),theta5(:),theta6(:)
 INTEGER :: nx,nt,i,j,icontrol
 
 T_amb = 22.d0
@@ -65,7 +65,7 @@ CLOSE(11)
 ! 2)
 ! a)
 
-allocate(theta4(0:nx),theta5(0:nx),theta6(0:nx),theta7(0:nx))
+allocate(theta4(0:nx),theta5(0:nx),theta6(0:nx))
 OPEN(12,file="apartat2a.dat")
 dt = tf/nt
 beta = 0.0002
@@ -95,18 +95,6 @@ theta5(:) = 0.d0
 theta5(nx) = T_Lt - T_amb
 CALL Crank_Nicolson(theta5,alpha,beta,nx,dx,dt,nt,icontrol,T_amb)
 CLOSE(13)
-
-OPEN(14,file="apartat2c.dat")
-
-dt = tf/nt
-beta = 0.002
-alpha = 1.29d-4
-icontrol = 2
-theta7(:) = 0.d0
-theta7(nx) = T_Lt - T_amb
-CALL Crank_Nicolson(theta7,alpha,beta,nx,dx,dt,nt,icontrol,T_amb)
-
-CLOSE(14)
 END PROGRAM P10
 
 SUBROUTINE RESOLUCIO(h,nx,T,epsilon,alpha,beta)
@@ -146,6 +134,11 @@ INTEGER :: nx,i,nt,icontrol,k,j,n1,n2,n3,m,n,nmax
 
 theta1 = theta0
 
+    BB = 0.d0
+    AP = 0.d0
+    A0 = 0.d0
+    AM = 0.d0
+
 r = (alpha*dt)/dx**2
 
 DO i = 1,nx-1
@@ -183,10 +176,15 @@ END DO
 Btheta(1) = Btheta(1) + 2*r*theta1(0)
 Btheta(nx-1) = Btheta(nx-1) + 2*r*theta1(nx)
 
+DO n = 1, nx-1 
+thetax(n) = theta0(n)
 END DO
-nmax = nx-1
-CALL TRIDIAG(AM,A0,AP,Btheta,theta0,nmax)
+    nmax = nx-1
+CALL TRIDIAG(AM,A0,AP,Btheta,thetax,nmax)
 
+DO m = 1, nx-1
+theta0(m) = thetax(m)
+END DO
 
 IF (icontrol.EQ.1) THEN
 
@@ -202,15 +200,6 @@ IF (icontrol.EQ.2) THEN
 
 WRITE(13,*) i*dt, sum(theta0)/dble(nx) + T_amb
 
-END IF
-
-IF (icontrol.EQ.3) THEN
-!IF(mod(i, 20) == 0) THEN
-DO i = 0,nx
-WRITE(14,*) t, dx*i, theta0(i) + T_amb
-END DO 
-WRITE(14,"(/)")
-!end if
 END IF
 
 END DO
